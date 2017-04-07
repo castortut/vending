@@ -2,7 +2,7 @@ import logging
 
 from tmp_products import products
 
-# States
+# States and their timeouts
 IDLE = 0
 PRODUCT_CHOSEN = 1
 PRODUCT_CHOSEN_TIMEOUT = 200
@@ -76,7 +76,6 @@ def state_idle(self, btn, packet):
         goto_product_chosen(btn, self)
     elif packet:
         goto_display_account(packet, self)
-        pass
     else:
         pass
 

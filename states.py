@@ -1,6 +1,15 @@
 import logging
 
-products = [("Tolkki", 1), ("Billys", 1.5), ("Gelatelli", 0.5)]
+from tmp_products import products
+
+# States
+IDLE = 0
+PRODUCT_CHOSEN = 1
+PRODUCT_CHOSEN_TIMEOUT = 200
+DISPLAY_TRANS = 2
+DISPLAY_TRANS_TIMEOUT = 200
+DISPLAY_ACC = 3
+DISPLAY_ACC_TIMEOUT = 200
 
 
 def goto_display_transaction(packet, self):
@@ -8,8 +17,8 @@ def goto_display_transaction(packet, self):
     self.lcd.print(2, "Kortti: " + packet[:4])
     self.lcd.print(3, "Jaljella: X e")
     logging.info("Transaction complete")
-    self.state = self.DISPLAY_TRANS
-    self.timeout = self.DISPLAY_TRANS_TIMEOUT
+    self.state = DISPLAY_TRANS
+    self.timeout = DISPLAY_TRANS_TIMEOUT
 
 
 def state_display_trans(self, btn, packet):
@@ -21,8 +30,8 @@ def goto_display_account(packet, self):
     self.lcd.clear_rows((1, 2, 3))
     self.lcd.print(2, "Kortti: " + packet[:4])
     self.lcd.print(3, "Saldo: X e")
-    self.state = self.DISPLAY_ACC
-    self.timeout = self.DISPLAY_ACC_TIMEOUT
+    self.state = DISPLAY_ACC
+    self.timeout = DISPLAY_ACC_TIMEOUT
     logging.info("Displaying account")
 
 
@@ -43,8 +52,8 @@ def goto_product_chosen(btn, self):
         logging.info("Invalid product chosen")
         self.lcd.clear_row(2)
         self.lcd.print(2, "Ei tuotetta")
-    self.state = self.PRODUCT_CHOSEN
-    self.timeout = self.PRODUCT_CHOSEN_TIMEOUT
+    self.state = PRODUCT_CHOSEN
+    self.timeout = PRODUCT_CHOSEN_TIMEOUT
 
 
 def state_product_chosen(self, btn, packet):
@@ -59,7 +68,7 @@ def state_product_chosen(self, btn, packet):
 def goto_idle(self):
     self.lcd.clear_rows((1, 2, 3))
     self.lcd.print(2, "Valitse tuote")
-    self.state = self.IDLE
+    self.state = IDLE
 
 
 def state_idle(self, btn, packet):

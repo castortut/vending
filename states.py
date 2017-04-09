@@ -17,11 +17,24 @@ DISPLAY_ACC_TIMEOUT = 200
 
 
 def goto_display_transaction(packet, self):
-    self.lcd.clear_rows((0, 1, 2, 3))
-    self.lcd.print(0, "Siirto OK")
-    self.lcd.print(2, "Tili: " + packet[:4])
-    self.lcd.print(3, "Jaljella: X e")
-    logging.info("Transaction complete")
+    try:
+        r = requests.post(URL + "/api/token/" + packet + "/transaction", {'amount': -products[self.selection][1]})
+        j = r.json()
+        self.lcd.clear_rows((0, 1, 2, 3))
+        if j['success']:
+            self.lcd.print(0, "Siirto OK")
+            self.lcd.print(2, "Tili: " + j['account'])
+            self.lcd.print(3, "Jaljella: %.2f e" % (j['balance']/100))
+            logging.info("Transaction complete")
+        else:
+            self.lcd.clear_rows((1, 2, 3))
+            self.lcd.print(1, j['message'])
+            if 'message2' in j.keys():
+                self.lcd.print(2, j['message2'])
+    except ValueError:
+        self.lcd.clear_rows((0, 1, 2, 3))
+        self.lcd.print(1, "Error")
+
     self.state = DISPLAY_TRANS
     self.timeout = DISPLAY_TRANS_TIMEOUT
 
@@ -32,11 +45,21 @@ def state_display_trans(self, btn, packet):
 
 
 def goto_display_account(packet, self):
-    r = requests.get(URL + "/api/token/" + packet + "/balance")
-    j = r.json()
-    self.lcd.clear_rows((1, 2, 3))
-    self.lcd.print(1, "Tili: " + str(j['account']))
-    self.lcd.print(2, "Saldo: " + str(j['balance']) + " e")
+    try:
+        r = requests.get(URL + "/api/token/" + packet + "/balance")
+        j = r.json()
+        if j['success']:
+            self.lcd.clear_rows((1, 2, 3))
+            self.lcd.print(1, "Tili: " + str(j['account']))
+            self.lcd.print(2, "Saldo: " + "%.2f" % (j['balance']/100) + " e")
+        else:
+            self.lcd.clear_rows((1, 2, 3))
+            self.lcd.print(1, j['message'])
+            if 'message2' in j.keys():
+                self.lcd.print(2, j['message2'])
+    except ValueError:
+        self.lcd.clear_rows((0, 1, 2, 3))
+        self.lcd.print(1, "Error")
     self.state = DISPLAY_ACC
     self.timeout = DISPLAY_ACC_TIMEOUT
     logging.info("Displaying account")
@@ -53,7 +76,7 @@ def goto_product_chosen(btn, self):
     try:
         logging.info("Product chosen")
         self.lcd.print(0, "Tuote " + products[self.selection][0])
-        self.lcd.print(1, "Hinta: " + str(products[btn - 1][1]))
+        self.lcd.print(1, "Hinta: %.2f" % (products[btn - 1][1]/100))
         self.lcd.print(3, "Nayta kortti")
     except IndexError:
         logging.info("Invalid product chosen")

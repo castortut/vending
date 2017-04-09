@@ -26,8 +26,11 @@ class Vending:
         self.keypad = Keypad()
 
     def main(self):
-        self.lcd.print(0, "Kassakone")
+        # Initialize state
+        goto_idle(self)
+
         logging.info("Initialized")
+
         while True:
             btn = self.keypad.read()
             packet = self.reader.get_packet()

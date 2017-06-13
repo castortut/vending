@@ -2,9 +2,11 @@ from tmp_products import products
 
 import logging
 import requests
+from Bank import Bank
 
 
-URL = "http://192.168.2.21:8000"
+bank = Bank()
+
 
 # States and their timeouts
 IDLE = 0
@@ -17,25 +19,25 @@ DISPLAY_ACC_TIMEOUT = 200
 
 
 def goto_display_transaction(packet, self):
-    try:
-        r = requests.post(URL + "/api/token/" + packet + "/transaction", {'amount': -products[self.selection][1]})
-        j = r.json()
+
+    result = bank.make_transaction(packet, -products[self.selection][1])
+    if not result.error:
         self.lcd.clear_rows((0, 1, 2, 3))
-        if j['success']:
+        if result.success:
             self.lcd.print(0, "Siirto OK")
-            self.lcd.print(2, "Tili: " + j['account'])
-            self.lcd.print(3, "Jaljella: %.2f e" % (j['balance']/100))
+            self.lcd.print(2, "Tili: " + result.account)
+            self.lcd.print(3, "Jaljella: %.2f e" % (result.balance/100))
             logging.info("Transaction complete")
         else:
             self.lcd.clear_rows((1, 2, 3))
-            self.lcd.print(1, j['message'])
-            if 'message2' in j.keys():
-                self.lcd.print(2, j['message2'])
-    except ValueError:
+            self.lcd.print(1, result.message1)
+            if result.message2 is not None:
+                self.lcd.print(2, result.message2)
+    else:
         self.lcd.clear_rows((0, 1, 2, 3))
         self.lcd.print(1, "Error")
 
-    self.state = DISPLAY_TRANS
+    self.state   = DISPLAY_TRANS
     self.timeout = DISPLAY_TRANS_TIMEOUT
 
 
@@ -45,19 +47,18 @@ def state_display_trans(self, btn, packet):
 
 
 def goto_display_account(packet, self):
-    try:
-        r = requests.get(URL + "/api/token/" + packet + "/balance")
-        j = r.json()
-        if j['success']:
+    result = bank.get_balance(packet)
+    if not result.error:
+        if result.success:
             self.lcd.clear_rows((1, 2, 3))
-            self.lcd.print(1, "Tili: " + str(j['account']))
-            self.lcd.print(2, "Saldo: " + "%.2f" % (j['balance']/100) + " e")
+            self.lcd.print(1, "Tili: " + str(result.account))
+            self.lcd.print(2, "Saldo: " + "%.2f" % (result.balance/100) + " e")
         else:
             self.lcd.clear_rows((1, 2, 3))
-            self.lcd.print(1, j['message'])
-            if 'message2' in j.keys():
-                self.lcd.print(2, j['message2'])
-    except ValueError:
+            self.lcd.print(1, result.message1)
+            if result.message2 is not None:
+                self.lcd.print(2, result.message2)
+    else:
         self.lcd.clear_rows((0, 1, 2, 3))
         self.lcd.print(1, "Error")
     self.state = DISPLAY_ACC

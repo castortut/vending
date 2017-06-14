@@ -20,7 +20,7 @@ DISPLAY_ACC_TIMEOUT = 200
 
 def goto_display_transaction(packet, self):
 
-    result = bank.make_transaction(packet, -products[self.selection][1])
+    result = bank.make_transaction(packet, -products[self.selection][1], self.BANK_MSG_PREFIX + products[self.selection][0])
     if not result.error:
         self.lcd.clear_rows((0, 1, 2, 3))
         if result.success:

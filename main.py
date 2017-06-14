@@ -13,6 +13,8 @@ class Vending:
     state = IDLE
     selection = None
 
+    BANK_MSG_PREFIX = "Vend: "
+
     def __init__(self, test=False):
         logging.getLogger().setLevel(logging.INFO)
         logging.info("Starting")

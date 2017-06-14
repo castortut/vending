@@ -83,7 +83,7 @@ class Bank:
     def __init__(self):
         pass
 
-    def make_transaction(self, token, amount):
+    def make_transaction(self, token, amount, message=None):
         """
         Attempt to make a transaction
         :param token: The token associated with the account to do the transaction against
@@ -93,8 +93,10 @@ class Bank:
         :return: Result of the transaction
         :rtype: Result
         """
-
-        req = requests.post(URL + "/api/token/" + token + "/transaction", {'amount': amount})
+        if message:
+            req = requests.post(URL + "/api/token/" + token + "/transaction", {'amount': amount, 'message': message})
+        else:
+            req = requests.post(URL + "/api/token/" + token + "/transaction", {'amount': amount})
         return Result.from_object(req.json())
 
 

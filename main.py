@@ -1,9 +1,5 @@
 import time
 
-from LCD import LCD
-from Reader import Reader
-from Keypad import Keypad
-
 from states import *
 
 
@@ -17,13 +13,26 @@ class Vending:
     state = IDLE
     selection = None
 
-    def __init__(self):
+    def __init__(self, test=False):
         logging.getLogger().setLevel(logging.INFO)
         logging.info("Starting")
 
-        self.lcd = LCD()
-        self.reader = Reader()
-        self.keypad = Keypad()
+        if not test:
+            from LCD import LCD
+            from Reader import Reader
+            from Keypad import Keypad
+
+            self.lcd = LCD()
+            self.reader = Reader()
+            self.keypad = Keypad()
+        else:
+            from testLCD import TestLCD
+            from testReader import TestReader
+            from testKeypad import TestKeypad
+
+            self.lcd = TestLCD()
+            self.reader = TestReader()
+            self.keypad = TestKeypad()
 
     def main(self):
         # Initialize state

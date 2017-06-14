@@ -1,12 +1,12 @@
 import requests
 
-URL = "http://192.168.2.21:8000"
+URL = "http://127.0.0.1:8000"
 
 
 KEY_SUCCESS = 'success'
 KEY_ACCOUNT = 'account'
 KEY_BALANCE = 'balance'
-KEY_MSG1 = 'message1'
+KEY_MSG1 = 'message'
 KEY_MSG2 = 'message2'
 
 
@@ -68,7 +68,7 @@ class Result:
                 balance = None
 
                 message1 = o[KEY_MSG1]
-                if KEY_MSG2 in j.keys():
+                if KEY_MSG2 in o.keys():
                     message2 = o[KEY_MSG2]
                 else:
                     message2 = None
